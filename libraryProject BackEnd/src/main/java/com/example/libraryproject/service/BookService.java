@@ -5,6 +5,8 @@ import com.example.libraryproject.repository.BookRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,11 +22,11 @@ public class BookService {
     private BookRepo bookRepo;
 
 
-    public List<Book> getAllBooks() {
-        return bookRepo.findAll();
+    public ResponseEntity <List<Book>> getAllBooks() {
+        return new ResponseEntity<>(bookRepo.findAll(), HttpStatus.OK);
     }
 
-    // Using Optional in this case, to prevent a case where a book is not found
+    // Adding Optional for allowing a better error handling, more flexibility in personalized responses to errors.
 
     public Optional<Book> getBookById(Integer id) {
         return bookRepo.findById(id);
@@ -43,15 +45,16 @@ public class BookService {
     private static final Logger log = LoggerFactory.getLogger(BookService.class);
 
     // Adding logging statements for debugging and monitoring purposes
-    // Adding Optional for allowing a better error handling, more flexibility in personalized responses to errors.
 
     public Optional<Book> createBook(Book book) {
-        if (bookRepo.existsById(book.getId())) {
+        if (book == null || bookRepo.existsById(book.getId())) {
+            assert book != null;
             log.info("Book already exists in database: {}", book.getId());
             return Optional.empty();
         }
         log.info("Saving book: {}", book);
-        return Optional.of(bookRepo.save(book));
+        Book savedBook = bookRepo.save(book);
+        return Optional.of(savedBook);
     }
 
     public Optional<Book> updateBook(Book book) {
@@ -66,7 +69,8 @@ public class BookService {
         }
 
         log.info("Updating book information: {}", book.getId());
-        return Optional.of(bookRepo.save(book));
+        Book updatedBook = bookRepo.save(book);
+        return Optional.of(updatedBook);
     }
 
 

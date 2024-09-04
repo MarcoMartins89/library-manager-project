@@ -16,8 +16,8 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping
-    public List<Book> getAllBooks() {
+    @GetMapping("/")
+    public ResponseEntity <List<Book>> getAllBooks() {
         return bookService.getAllBooks();
     }
 
